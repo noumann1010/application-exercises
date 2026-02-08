@@ -1,0 +1,529 @@
+---
+title: "AE 03 - Visualizing Star Wars Characters"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+  pdf_document:
+    toc: true
+    latex_engine: xelatex
+    keep_tex: false
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+## Introduction
+
+In this application exercise, you'll practice creating various types of visualizations using the Star Wars characters dataset. This dataset contains information about characters from the Star Wars universe, including their physical characteristics, homeworld, and species.
+
+**In this application exercise, you will:**
+
+- Explore data with `glimpse()`
+- Create scatterplots with multiple aesthetics
+- Make histograms with appropriate binwidths
+- Create visualizations for different variable types
+- Interpret relationships between variables
+- Customize plot labels and aesthetics
+- Choose appropriate plot types for different data types
+
+**Estimated time:** 30-45 minutes
+
+---
+
+## Getting Started
+
+### Fork and Clone Workflow
+
+**Quick reminder:** You should be working in YOUR forked `application-exercises` repository.
+
+1. Navigate to the `ae-03-starwars` folder in YOUR fork
+2. Open `ae-03-starwars.Rmd`
+3. Update the YAML with your name
+4. Click **Knit** to verify it works
+
+**If you need detailed fork-and-clone instructions, see AE 01.**
+
+---
+
+## Packages
+```{r load-packages, include=FALSE}
+library(tidyverse)
+```
+
+**What this package does:**
+- **tidyverse:** Includes ggplot2 for visualization and dplyr for data wrangling
+
+---
+
+## The Data
+
+The `starwars` dataset comes built-in with the tidyverse. It contains information on Star Wars characters from the first seven films.
+
+---
+
+## Exercise 1: Glimpse at the Data
+
+Glimpse at the `starwars` data frame to understand its structure.
+```{r glimpse-starwars}
+glimpse(starwars)
+```
+
+**Answer the following questions:**
+
+**How many observations (rows) are there?** _____
+
+**How many variables (columns) are there?** _____
+
+**Name three numerical variables:**
+
+1. _____
+2. _____
+3. _____
+
+**Name three categorical variables:**
+
+1. _____
+2. _____
+3. _____
+
+**What does each observation represent?**
+
+___________________________________________________________________________
+
+---
+
+## Exercise 2: Understanding Aesthetics
+
+The plot below maps several variables to aesthetics. However, there's an issue with how color is being used.
+
+**Original code:**
+```{r scatterplot-original, eval=FALSE}
+ggplot(starwars, 
+       aes(x = height, y = mass, color = gender, size = birth_year)) +
+  geom_point(color = "pink")
+```
+
+**Task 2.1:** Run the code above. What happened to the `color = gender` mapping?
+
+**Your answer:**
+
+___________________________________________________________________________
+___________________________________________________________________________
+
+**Task 2.2:** Why did this happen?
+
+**Hint:** Think about where `color = "pink"` appears vs. where `color = gender` appears.
+
+**Your answer:**
+
+___________________________________________________________________________
+___________________________________________________________________________
+
+**The issue:** When you set `color = "pink"` inside `geom_point()`, it overrides the aesthetic mapping `color = gender` from `aes()`.
+
+**Task 2.3:** Modify the code below to keep all the aesthetic mappings AND make the points pink:
+```{r scatterplot-pink}
+ggplot(starwars, 
+       aes(x = height, y = mass, size = birth_year)) +  # Removed color = gender
+  geom_point(color = "pink")
+```
+
+**What this plot shows:**
+
+- x-axis: Height of characters
+- y-axis: Mass (weight) of characters  
+- Size of points: Birth year (larger = born later)
+- All points are pink
+
+---
+
+## Exercise 3: Adding Labels
+
+Add appropriate labels for the title, x-axis, y-axis, and size legend. Uncomment the lines and fill in the blanks.
+```{r scatterplot-labels}
+ggplot(starwars, 
+       aes(x = height, y = mass, color = gender, size = birth_year)) +
+  geom_point(color = "#30509C") +
+  labs(
+    title = "___",           # Title about relationship between height and mass
+    x = "___",               # What is on the x-axis?
+    y = "___",               # What is on the y-axis?
+    size = "___"             # What does size represent?
+  )
+```
+
+**Hints:**
+
+- Title should describe what the plot shows
+- x and y labels should include units if relevant (height in cm, mass in kg)
+- size label describes what the size of points represents
+
+**Task 3.1:** Why is there no `color` label in the `labs()` function?
+
+**Your answer:**
+
+___________________________________________________________________________
+
+---
+
+## Exercise 4: Create a Histogram
+
+Pick a single numerical variable and make a histogram of it. Select a reasonable binwidth.
+
+**First, explore the variable:**
+```{r explore-for-histogram}
+# Choose a variable and look at its range
+starwars %>%
+  summarise(
+    min_height = min(height, na.rm = TRUE),
+    max_height = max(height, na.rm = TRUE),
+    mean_height = mean(height, na.rm = TRUE)
+  )
+```
+
+**Now create your histogram:**
+```{r histogram, eval = FALSE}
+# Fill in the blanks
+ggplot(starwars, aes(x = ___)) +
+  geom_histogram(binwidth = ___, fill = "steelblue", color = "white") +
+  labs(
+    title = "___",
+    x = "___",
+    y = "___"
+  )
+```
+
+**Hints:**
+
+- Choose from: height, mass, birth_year
+- Try different binwidths: 10, 20, 50 (depending on your variable)
+- Use `fill` to color the bars, `color` to color the borders
+
+**Task 4.1:** What binwidth did you choose and why?
+
+**Your answer:**
+
+I chose a binwidth of _____ because ______________________________________
+___________________________________________________________________________
+
+**Task 4.2:** Describe the distribution. Is it symmetric, skewed left, or skewed right? Are there any outliers?
+
+**Your answer:**
+
+___________________________________________________________________________
+___________________________________________________________________________
+
+---
+
+## Exercise 5: Numerical vs. Categorical
+
+Pick a numerical variable and a categorical variable and make a visualization to visualize the relationship between the two variables.
+
+**Suggested plot types:**
+
+- Boxplot: `geom_boxplot()`
+- Violin plot: `geom_violin()`
+- Multiple histograms: `geom_histogram()` with `facet_wrap()`
+
+**Example combinations to try:**
+
+- height by gender
+- mass by species
+- birth_year by sex
+```{r num-cat, eval = FALSE}
+# Your code here
+ggplot(starwars, aes(x = ___, y = ___)) +
+  geom_boxplot(fill = "lightblue") +
+  labs(
+    title = "___",
+    x = "___",
+    y = "___"
+  )
+```
+
+**Interpretation:**
+
+What does this visualization tell you about the relationship between these two variables?
+
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+
+---
+
+## Exercise 6: Bar Plot of Categorical Variable
+
+Pick a single categorical variable from the dataset and make a bar plot of its distribution.
+
+**Suggested variables:**
+
+- gender
+- sex  
+- species
+- eye_color
+- hair_color
+```{r barplot,, eval = FALSE}
+# Your code here
+ggplot(starwars, aes(x = ___)) +
+  geom_bar(fill = "coral") +
+  labs(
+    title = "___",
+    x = "___",
+    y = "___"
+  )
+```
+
+**Task 6.1:** Which category has the most observations?
+
+**Your answer:** _____
+
+**Task 6.2:** If your plot has many categories with small bars that are hard to read, try flipping the coordinates:
+```{r barplot-flipped, eval = FALSE}
+# Same code as above, but add coord_flip() at the end
+ggplot(starwars, aes(x = ___)) +
+  geom_bar(fill = "coral") +
+  labs(
+    title = "___",
+    x = "___",
+    y = "___"
+  ) +
+  coord_flip()
+```
+
+---
+
+## Exercise 7: Two Categorical Variables
+
+Pick two categorical variables and make a visualization to visualize the relationship between the two variables.
+
+**Suggested plot types:**
+
+- Stacked bar plot: `geom_bar()`
+- Grouped bar plot: `geom_bar(position = "dodge")`
+- Faceted bar plot: `geom_bar()` with `facet_wrap()`
+- Heatmap: `geom_tile()` with counts
+
+**Suggested combinations:**
+
+- gender and species
+- sex and eye_color
+- gender and hair_color
+
+**Option 1: Stacked bar plot**
+```{r cat-cat-stacked, eval = FALSE}
+# Your code here
+ggplot(starwars, aes(x = ___, fill = ___)) +
+  geom_bar() +
+  labs(
+    title = "___",
+    x = "___",
+    y = "Count",
+    fill = "___"
+  )
+```
+
+**Option 2: Grouped bar plot (side-by-side)**
+```{r cat-cat-grouped, eval = FALSE}
+# Your code here
+ggplot(starwars, aes(x = ___, fill = ___)) +
+  geom_bar(position = "dodge") +
+  labs(
+    title = "___",
+    x = "___",
+    y = "Count",
+    fill = "___"
+  )
+```
+
+**Choose one of the above and interpret:**
+
+What does this visualization tell you about the relationship between these two variables?
+
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+
+---
+
+## Exercise 8: Multi-Variable Visualization
+
+Pick two numerical variables and two categorical variables and make a visualization that incorporates all of them.
+
+**Suggested approach:**
+
+- x-axis: numerical variable 1
+- y-axis: numerical variable 2
+- color: categorical variable 1
+- facets: categorical variable 2
+
+**Example combination:**
+
+- height (numerical)
+- mass (numerical)
+- gender (categorical - use for color)
+- species (categorical - use for facets, maybe filter to top 3-4 species)
+
+**Starter template:**
+```{r multi, eval=FALSE}
+# You might want to filter first to avoid too many facets
+starwars_filtered <- starwars %>%
+  filter(species %in% c("Human", "Droid", "___"))  # Pick 3-4 species
+
+# Your plot here
+ggplot(starwars_filtered, 
+       aes(x = ___, y = ___, color = ___)) +
+  geom_point(size = 3) +
+  facet_wrap(~ ___) +
+  labs(
+    title = "___",
+    x = "___",
+    y = "___",
+    color = "___"
+  )
+```
+
+**Interpretation:**
+
+What patterns do you notice? How do the relationships differ across the facets?
+
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+
+---
+
+## Exercise 9: Reflection
+
+**Task 9.1:** Which type of plot was most useful for exploring this data? Why?
+
+**Your answer:**
+
+___________________________________________________________________________
+___________________________________________________________________________
+
+**Task 9.2:** What was the most interesting pattern or relationship you found?
+
+**Your answer:**
+
+___________________________________________________________________________
+___________________________________________________________________________
+
+**Task 9.3:** What did you find most challenging about creating these visualizations?
+
+**Your answer:**
+
+___________________________________________________________________________
+
+---
+
+## Knit and Submit
+
+**Before you finish:**
+
+1. ✅ Make sure all code chunks run without errors
+2. ✅ Fill in all answer spaces and interpretations
+3. ✅ Knit to HTML first to verify everything works
+4. ✅ Review the HTML output - check that all plots display correctly
+
+**Git workflow:**
+
+1. Click the **Git** pane
+2. Check boxes next to all changed files
+3. Click **Commit**
+4. Write a commit message: "Completed AE 03 - Star Wars"
+5. Click **Commit**
+6. Click **Push**
+7. Verify your work is on GitHub in **YOUR fork**
+
+---
+
+## Generate PDF for Canvas Submission
+
+Once everything works in HTML:
+
+1. Click the **Knit** dropdown arrow
+2. Select **Knit to PDF**
+3. Wait for PDF generation
+4. Find `ae-03-starwars.pdf` in the Files pane
+5. Export and save to your computer
+6. Submit the PDF to Canvas
+
+**Remember:** Submit to BOTH GitHub (your .Rmd) AND Canvas (the PDF)!
+
+---
+
+## Troubleshooting
+
+**Common issues:**
+
+- **Error: "object not found":** Make sure you loaded the tidyverse package
+- **Plot doesn't show up:** Make sure the code chunk is set to run (not `eval: false`)
+- **Too many categories in plot:** Filter the data first or use `coord_flip()` for better readability
+- **NAs in plot:** This is normal for this dataset - some characters have missing values
+
+**Aesthetic mapping issues:**
+
+- **Color not showing:** Make sure `color = variable` is inside `aes()`, not `geom_point()`
+- **Want to set all points to one color:** Put `color = "colorname"` OUTSIDE `aes()`, inside `geom_point()`
+
+**Plot type selection:**
+
+- **One numerical variable:** histogram or density plot
+- **One categorical variable:** bar plot
+- **Numerical vs. categorical:** boxplot, violin plot, or faceted histogram
+- **Two categorical:** stacked/grouped bar plot or faceted plot
+- **Two numerical:** scatterplot
+- **Multiple variables:** use color, size, shape, facets
+
+**PDF issues:**
+
+- **LaTeX not found:** Install tinytex: `tinytex::install_tinytex()`
+- **Plots too large for PDF:** Adjust `fig.width` and `fig.height` in chunk options
+
+**If you're stuck:**
+
+- Review the walkthrough video
+- Check ggplot2 documentation: `?geom_point`, `?geom_histogram`, etc.
+- Ask on the discussion board
+- Attend office hours
+
+---
+
+## Bonus: Quick Reference
+
+**Basic ggplot structure:**
+```r
+ggplot(data, aes(x = var1, y = var2)) +
+  geom_*() +
+  labs(title = "...", x = "...", y = "...")
+```
+
+**Common geoms:**
+
+- `geom_point()`: scatterplot
+- `geom_histogram()`: histogram
+- `geom_bar()`: bar plot
+- `geom_boxplot()`: boxplot
+- `geom_violin()`: violin plot
+- `geom_line()`: line plot
+
+**Common aesthetics (inside `aes()`):**
+
+- `x = variable`: x-axis
+- `y = variable`: y-axis
+- `color = variable`: color by variable
+- `fill = variable`: fill color by variable
+- `size = variable`: size by variable
+- `shape = variable`: shape by variable
+
+**Fixed aesthetics (outside `aes()`):**
+
+- `color = "blue"`: all points blue
+- `fill = "red"`: all filled red
+- `size = 3`: all points size 3
+- `alpha = 0.5`: transparency (0 = transparent, 1 = opaque)

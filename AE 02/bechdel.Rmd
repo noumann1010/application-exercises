@@ -1,0 +1,488 @@
+---
+title: "AE 02 - Bechdel Test"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    toc: true
+    latex_engine: xelatex
+    keep_tex: false
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+---
+
+## Introduction
+
+In this mini analysis we work with the data used in the FiveThirtyEight story titled ["The Dollar-And-Cents Case Against Hollywood's Exclusion of Women"](https://fivethirtyeight.com/features/the-dollar-and-cents-case-against-hollywoods-exclusion-of-women/).
+
+**The Bechdel Test** is a measure of the representation of women in fiction. A movie passes the test if it meets three criteria:
+1. It has at least two women in it
+2. Who talk to each other
+3. About something other than a man
+
+**In this application exercise, you will:**
+
+- Practice data filtering and summarizing
+- Calculate return on investment (ROI)
+- Create and interpret boxplots
+- Use grouping to compare categories
+- Practice using inline R code
+- Interpret relationships between variables
+
+**Estimated time:** 30-45 minutes
+
+---
+
+## Getting Started
+
+### Fork and Clone Workflow
+
+**IMPORTANT:** Just like AE 01, you need to work in YOUR forked repository.
+
+**Quick reminder:**
+1. Make sure you forked `application-exercises` repository (you only do this once!)
+2. You should be working in YOUR fork: `YourUsername/application-exercises`
+3. Navigate to the `ae-02-bechdel` folder
+4. Open `ae-02-bechdel.Rmd`
+5. Update the YAML with your name
+6. Click **Knit** to verify it works
+
+**If you haven't forked yet:** See detailed instructions in AE 01.
+
+---
+
+## Data and Packages
+
+We start with loading the packages we'll use.
+```{r load-packages, warning=FALSE, message=FALSE}
+library(fivethirtyeight)
+library(tidyverse)
+```
+
+**What these packages do:**
+- **fivethirtyeight:** Contains datasets from FiveThirtyEight articles
+- **tidyverse:** Data wrangling and visualization
+
+### About the Data
+
+The dataset contains information on `r nrow(bechdel)` movies released between `r min(bechdel$year)` and `r max(bechdel$year)`. However, we'll focus our analysis on movies released between 1990 and 2013.
+```{r filter-years}
+bechdel90_13 <- bechdel %>% 
+  filter(between(year, 1990, 2013))
+```
+
+**What this code does:**
+- `filter()`: Keeps only rows meeting a condition
+- `between()`: Checks if a value is between two numbers (inclusive)
+- Result: Movies from 1990-2013 only
+
+---
+
+## Exercise 1: Count the Movies
+
+How many movies are in our filtered dataset?
+
+**Fill in the blank using inline code:**
+
+There are `r nrow(bechdel90_13)` movies in our dataset.
+
+**Hint:** Use inline R code with `nrow(bechdel90_13)` in your narrative text.
+
+---
+
+## Understanding the Variables
+
+The financial variables we'll focus on are the following:
+
+- `budget_2013`: Budget in 2013 inflation adjusted dollars
+- `domgross_2013`: Domestic gross (US) in 2013 inflation adjusted dollars
+- `intgross_2013`: Total International (i.e., worldwide) gross in 2013 inflation adjusted dollars
+
+And we'll also use the `binary` and `clean_test` variables for **grouping**:
+
+- `binary`: Whether the movie passed (PASS) or failed (FAIL) the Bechdel test
+- `clean_test`: More detailed result (ok, dubious, men, notalk, nowomen)
+
+**Explore the data:**
+```{r explore-bechdel}
+# View the structure
+glimpse(bechdel90_13)
+
+# See how many movies passed vs failed
+bechdel90_13 %>%
+  count(binary)
+```
+
+**How many movies passed the test?** _____
+
+**How many failed?** _____
+
+---
+
+## Analysis
+
+### Binary Bechdel Test Results
+
+Let's take a look at how median budget and gross vary by whether the movie passed the Bechdel test, which is stored in the `binary` variable.
+```{r binary-summary}
+bechdel90_13 %>%
+  group_by(binary) %>%
+  summarise(
+    med_budget = median(budget_2013),
+    med_domgross = median(domgross_2013, na.rm = TRUE),
+    med_intgross = median(intgross_2013, na.rm = TRUE)
+  )
+```
+
+**What this code does:**
+- `group_by(binary)`: Creates groups for PASS and FAIL
+- `summarise()`: Calculates summary statistics for each group
+- `median()`: Finds the middle value
+- `na.rm = TRUE`: Removes missing values before calculating
+
+---
+
+## Exercise 2: Interpret Binary Results
+
+**Task 2.1:** Which movies have higher median budgets: those that pass or fail the Bechdel test?
+
+**Your answer:**
+
+Movies that ___________ the test have higher median budgets.
+
+**Task 2.2:** Which movies have higher median domestic gross: those that pass or fail?
+
+**Your answer:**
+
+Movies that ___________ the test have higher median domestic gross.
+
+**Task 2.3:** What might explain these patterns?
+
+**Your answer:**
+
+___________________________________________________________________________
+___________________________________________________________________________
+
+---
+
+## Detailed Bechdel Test Results
+
+Next, let's take a look at how median budget and gross vary by a more detailed indicator of the Bechdel test result. This information is stored in the `clean_test` variable, which takes on the following values:
+
+- `ok` = passes test
+- `dubious` = unclear whether it passes
+- `men` = women only talk about men
+- `notalk` = women don't talk to each other
+- `nowomen` = fewer than two women
+
+## Exercise 3: Group by Detailed Test Results
+
+**Fill in the blank to group by `clean_test`:**
+```{r detailed-summary, eval = FALSE}
+bechdel90_13 %>%
+  group_by(___) %>%
+  summarise(
+    med_budget = median(budget_2013),
+    med_domgross = median(domgross_2013, na.rm = TRUE),
+    med_intgross = median(intgross_2013, na.rm = TRUE)
+  )
+```
+
+**Task 3.1:** Which category has the highest median budget?
+
+**Your answer:** _____
+
+**Task 3.2:** Which category has the highest median international gross?
+
+**Your answer:** _____
+
+---
+
+## Return on Investment (ROI)
+
+In order to evaluate how return on investment varies among movies that pass and fail the Bechdel test, we'll first create a new variable called `roi` as the ratio of the gross to budget.
+
+**ROI formula:** (Total Gross) / Budget
+
+Higher ROI = More profitable relative to what was spent
+```{r create-roi}
+bechdel90_13 <- bechdel90_13 %>%
+  mutate(roi = (intgross_2013 + domgross_2013) / budget_2013)
+```
+
+**What this code does:**
+- `mutate()`: Creates a new variable
+- `(intgross_2013 + domgross_2013)`: Total gross (domestic + international)
+- `/ budget_2013`: Divide by budget
+- Result: ROI of 2 means the movie made twice its budget
+
+---
+
+## Exercise 4: Highest ROI Movies
+
+Let's see which movies have the highest return on investment.
+```{r highest-roi}
+bechdel90_13 %>%
+  arrange(desc(roi)) %>% 
+  select(title, roi, year)
+```
+
+**What this code does:**
+- `arrange(desc(roi))`: Sorts by ROI in descending order (highest first)
+- `select()`: Shows only the columns we want
+
+**Task 4.1:** What is the movie with the highest ROI?
+
+**Your answer:** ___________________________________________________________
+
+**Task 4.2:** What is its ROI value?
+
+**Your answer:** _____
+
+**Task 4.3:** Does this movie surprise you? Why or why not?
+
+**Your answer:**
+
+___________________________________________________________________________
+___________________________________________________________________________
+
+---
+
+## Visualizing ROI
+
+Below is a visualization of the return on investment by test result. However, it's difficult to see the distributions due to a few extreme observations.
+
+## Exercise 5: Create Initial Boxplot
+
+**Fill in the blank for the y-axis label:**
+```{r initial-boxplot, warning=FALSE}
+ggplot(data = bechdel90_13, 
+       mapping = aes(x = clean_test, y = roi, color = binary)) +
+  geom_boxplot() +
+  labs(
+    title = "Return on investment vs. Bechdel test result",
+    x = "Detailed Bechdel result",
+    y = "___",
+    color = "Binary Bechdel result"
+  )
+```
+
+**Hint:** The y-axis shows the ROI values.
+
+**Task 5.1:** Why is this plot difficult to interpret?
+
+**Your answer:**
+
+___________________________________________________________________________
+___________________________________________________________________________
+
+---
+
+## Extreme Observations
+
+What are those movies with *very* high returns on investment?
+```{r extreme-roi}
+bechdel90_13 %>%
+  filter(roi > 400) %>%
+  select(title, budget_2013, domgross_2013, year)
+```
+
+**Task 5.2:** How many movies have ROI greater than 400?
+
+**Your answer:** _____
+
+**Task 5.3:** What do you notice about the budgets of these high-ROI movies?
+
+**Your answer:**
+
+___________________________________________________________________________
+
+---
+
+## Exercise 6: Zoom In for Better View
+
+Zooming in on the movies with `roi < 15` provides a better view of how the medians across the categories compare.
+
+**Fill in the blanks:**
+```{r zoomed-boxplot, warning=FALSE}
+ggplot(data = bechdel90_13, 
+       mapping = aes(x = clean_test, y = roi, color = binary)) +
+  geom_boxplot() +
+  labs(
+    title = "Return on investment vs. Bechdel test result",
+    subtitle = "___", # Something about zooming in to a certain level
+    x = "Detailed Bechdel result",
+    y = "Return on investment",
+    color = "Binary Bechdel result"
+  ) +
+  coord_cartesian(ylim = c(0, 15))
+```
+
+**Hints for subtitle:**
+- Mention that you're focusing on ROI < 15
+- Something like "Focusing on movies with ROI less than 15" or "Zoomed in to ROI < 15"
+
+**What `coord_cartesian()` does:**
+- Zooms in on the plot without removing data
+- `ylim = c(0, 15)`: Shows only y-values from 0 to 15
+- Unlike `filter()`, this doesn't remove data, just changes the view
+
+---
+
+## Exercise 7: Interpret the Zoomed Plot
+
+**Task 7.1:** Looking at the zoomed plot, which category has the highest median ROI?
+
+**Your answer:** _____
+
+**Task 7.2:** Do movies that pass the Bechdel test (binary = PASS) appear to have higher or lower ROI than those that fail?
+
+**Your answer:**
+
+___________________________________________________________________________
+___________________________________________________________________________
+
+**Task 7.3:** What does this suggest about the financial argument for including women in films?
+
+**Your answer:**
+
+___________________________________________________________________________
+___________________________________________________________________________
+___________________________________________________________________________
+
+---
+
+## Exercise 8: Create Your Own Summary
+
+**Task 8.1:** Calculate the mean ROI (not median) for movies that pass vs. fail the Bechdel test.
+
+**Hint:** Use `group_by()` and `summarise()` like we did earlier, but with `mean()` instead of `median()`.
+```{r mean-roi, eval = FALSE}
+bechdel90_13 %>%
+  group_by(___) %>%
+  summarise(
+    mean_roi = mean(___, na.rm = TRUE)
+  )
+```
+
+**Mean ROI for PASS:** _____
+
+**Mean ROI for FAIL:** _____
+
+**Task 8.2:** How do these means compare to the medians we saw earlier? Why might they be different?
+
+**Your answer:**
+
+___________________________________________________________________________
+___________________________________________________________________________
+
+---
+
+## Exercise 9: Challenge (Optional)
+
+**Create a visualization comparing ROI across years for movies that pass vs. fail the test.**
+
+**Hints:**
+- Use `geom_point()` or `geom_line()`
+- Put `year` on the x-axis and `roi` on the y-axis
+- Color by `binary`
+- You might want to filter out extreme ROI values first
+- Consider using `geom_smooth()` to show trends
+```{r roi-over-time, warning=FALSE}
+# Your code here
+```
+
+**What trend do you notice?**
+
+___________________________________________________________________________
+
+---
+
+## Knit and Submit
+
+**Before you finish:**
+
+1. ✅ Make sure all code chunks run without errors
+2. ✅ Fill in all answer spaces
+3. ✅ Knit to HTML first to verify everything works
+4. ✅ Review the HTML output
+
+**Git workflow:**
+
+1. Click the **Git** pane
+2. Check boxes next to all changed files
+3. Click **Commit**
+4. Write a commit message: "Completed AE 02 - Bechdel"
+5. Click **Commit**
+6. Click **Push**
+7. Verify your work is on GitHub in **YOUR fork**
+
+---
+
+## Generate PDF for Canvas Submission
+
+Once everything works in HTML:
+
+1. Click the **Knit** dropdown arrow
+2. Select **Knit to PDF**
+3. Wait for PDF generation
+4. Find `ae-02-bechdel.pdf` in the Files pane
+5. Click the checkbox next to the PDF
+6. Click **More → Export...**
+7. Save to your computer
+8. Submit the PDF to Canvas
+
+**Remember:** Submit BOTH to GitHub (your .Rmd) AND Canvas (the PDF)!
+
+---
+
+## Reflection Questions
+
+**Task:** After completing this exercise, reflect on what you learned.
+
+**What was the most interesting finding about the Bechdel test and movie finances?**
+
+___________________________________________________________________________
+___________________________________________________________________________
+
+**What was the most challenging part of this exercise?**
+
+___________________________________________________________________________
+
+**How did zooming in on the plot change your interpretation of the data?**
+
+___________________________________________________________________________
+___________________________________________________________________________
+
+---
+
+## References
+
+1. Hickey, W. (2014). ["The Dollar-And-Cents Case Against Hollywood's Exclusion of Women"](https://fivethirtyeight.com/features/the-dollar-and-cents-case-against-hollywoods-exclusion-of-women/). FiveThirtyEight.
+
+2. The Bechdel Test was popularized by Alison Bechdel's comic strip "Dykes to Watch Out For."
+
+---
+
+## Troubleshooting
+
+**Common issues:**
+
+- **Error: "could not find function":** Make sure you ran the package loading chunk
+- **ROI values look wrong:** Check that you're adding domestic and international gross before dividing by budget
+- **Plot doesn't show:** Make sure you ran all previous chunks that create variables
+- **NA values in results:** Use `na.rm = TRUE` in your summary functions
+
+**PDF issues:**
+
+- **LaTeX not found:** Install tinytex: `tinytex::install_tinytex()`
+- **PDF looks different:** This is normal - focus on content, not formatting
+
+**If you're stuck:**
+
+- Review the walkthrough video
+- Check your code against the examples
+- Ask on the discussion board
+- Attend office hours
