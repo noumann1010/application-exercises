@@ -1,6 +1,6 @@
 ---
 title: "AE 01 - UN Votes"
-author: "Your Name"
+author: "Nouman"
 date: "`r Sys.Date()`"
 output: 
   pdf_document:
@@ -159,7 +159,7 @@ unvotes %>%
   nrow()
 ```
 
-**Answer:** There are _____ countries in the dataset.
+**Answer:** There are 200 countries in the dataset.
 
 **Task 1.2:** What are the unique vote options?
 ```{r unique-votes}
@@ -168,7 +168,7 @@ unvotes %>%
   distinct(vote)
 ```
 
-**Answer:** The vote options are: ___, ___, and ___.
+**Answer:** The vote options are: no, yes, and abstain.
 
 **Task 1.3:** What issue categories are included?
 ```{r unique-issues}
@@ -177,7 +177,7 @@ unvotes %>%
   distinct(issue)
 ```
 
-**Answer:** The issue categories are: ___________________________________________
+**Answer:** The issue categories are: Human rights, Economic development, Colonialism, Palestinian conflict, Arms control and disarmament, and Nuclear weapons and nuclear material.
 
 ---
 
@@ -238,23 +238,21 @@ unvotes %>%
 
 **Your answer:**
 
-___________________________________________________________________________
-___________________________________________________________________________
+D because it is initially stable then increases and decreases unexpectedly, forming a straight pattern, then rapidly making a bump.
 
 **Task 2.2:** Which country appears most consistent in its voting patterns across all issues? Which appears least consistent?
 
 **Your answer:**
 
-___________________________________________________________________________
-___________________________________________________________________________
+I think turkey is the most consistent because the shape it forms, similar to an M, is consistent in all of them. I think the united states is the least consistent. i believe so because i tried visually analyzing the distance between the lowest and highest points on the graphs and felt like the united states generally had a larger distance.
 
 **Task 2.3:** On which issue do the three countries show the most similar voting patterns? On which issue do they differ the most?
 
 **Your answer:**
 
-Most similar: _____________________________________________________________
+Most similar: Arms control and disarmament
 
-Most different: ___________________________________________________________
+Most different: Colonialism
 
 ---
 
@@ -268,7 +266,7 @@ We can easily change which countries are being plotted by changing which countri
 ```{r plot-custom-countries, message=FALSE, fig.width=10, fig.height=6, eval = FALSE}
 # Copy the code from above and modify the filter() line
 unvotes %>%
-  filter(country %in% c("___", "___", "___")) %>%  # Change these!
+  filter(country %in% c("China", "Russia", "India")) %>%  # Change these!
   mutate(year = year(date)) %>%
   group_by(country, year, issue) %>%
   summarize(percent_yes = mean(vote == "yes")) %>%
@@ -286,14 +284,13 @@ unvotes %>%
   )
 ```
 
-**Which countries did you choose?** _____, _____, and _____
+**Which countries did you choose?** China, Russia, and India. 
 
 **Task 3.2:** Describe one interesting pattern you notice in your new plot.
 
 **Your answer:**
 
-___________________________________________________________________________
-___________________________________________________________________________
+one observation is that china has the highest average measure of positive human rights votes.
 
 ---
 
@@ -304,8 +301,8 @@ ___________________________________________________________________________
 **Hint:** You'll need to add a `filter()` step for the issue, and modify the countries in the first `filter()`.
 ```{r plot-human-rights, message=FALSE, fig.width=10, fig.height=6, eval = FALSE}
 unvotes %>%
-  filter(country %in% c("___", "___", "___", "___", "___")) %>%  # Choose 5 countries
-  filter(issue == "___") %>%  # Filter for Human rights
+  filter(country %in% c("China", "Russia", "India", "United States", "United Kingdom")) %>%  # Choose 5 countries
+  filter(issue == "Human rights") %>%  # Filter for Human rights
   mutate(year = year(date)) %>%
   group_by(country, year) %>%
   summarize(percent_yes = mean(vote == "yes")) %>%
@@ -314,7 +311,7 @@ unvotes %>%
   geom_smooth(method = "loess", se = FALSE) +
   scale_y_continuous(labels = percent) +
   labs(
-    title = "___",  # Update title
+    title = "Human Rights Voting Patterns in the UN General Assembly",  # Update title
     subtitle = "1946 to 2019",
     y = "% Yes",
     x = "Year",
@@ -324,8 +321,8 @@ unvotes %>%
 
 **Describe what you see:**
 
-___________________________________________________________________________
-___________________________________________________________________________
+One thing i noticed is that the trends behind each countries' lines always change for each country due to different issues. China generally seems to have higher percentages of yes votes compared to Russia and India due to different issues, for example.
+
 
 ---
 
@@ -334,10 +331,10 @@ ___________________________________________________________________________
 **Task 5.1:** Calculate the overall percentage of "yes" votes for each country across all issues and all years.
 ```{r overall-yes-percent, eval = FALSE}
 country_yes_percent <- unvotes %>%
-  group_by(___) %>%
+  group_by(country) %>%
   summarize(
     total_votes = n(),
-    percent_yes = mean(vote == "___") * 100
+    percent_yes = mean(vote == "yes") * 100
   ) %>%
   arrange(desc(percent_yes))
 
@@ -345,14 +342,14 @@ country_yes_percent <- unvotes %>%
 head(country_yes_percent, 10)
 ```
 
-**Which country has the highest overall percentage of "yes" votes?** _____
+**Which country has the highest overall percentage of "yes" votes?** Seychelles
 
-**Which has the lowest?** _____
+**Which has the lowest?** Zanzibar
 
 **Task 5.2:** Calculate the percentage of "yes" votes by issue, averaged across all countries and all years.
 ```{r issue-yes-percent, eval = FALSE}
 issue_yes_percent <- unvotes %>%
-  group_by(___) %>%
+  group_by(issue) %>%
   summarize(
     percent_yes = mean(vote == "yes") * 100
   ) %>%
@@ -361,10 +358,9 @@ issue_yes_percent <- unvotes %>%
 issue_yes_percent
 ```
 
-**Which issue has the most "yes" votes on average?** _____________________
+**Which issue has the most "yes" votes on average?** Palestinian conflict_____________________
 
-**Which has the least?** ____________________
-
+**Which has the least?** Humanrights
 ---
 
 ## Exercise 6: Challenge (Optional)
